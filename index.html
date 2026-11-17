@@ -1,0 +1,562 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Network Town</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@600;800;900&family=Press+Start+2P&display=swap" rel="stylesheet">
+<style>
+:root{--o:#1d2340;--sky1:#67c3ff;--sky2:#c9efff;--grass:#5cc85c;--gold:#ffcc33;--good:#2fb36d;--bad:#e5484d;--card:#fffdf6;--ink:#1d2340;--soft:#5a6182;--blue:#3b6fd8}
+html{font-size:19px}
+html.big{font-size:23px}
+*{box-sizing:border-box}
+body{margin:0;font-family:Nunito,system-ui,sans-serif;font-weight:600;color:var(--ink);background:linear-gradient(var(--sky1),var(--sky2) 60%,#e9fbe4);min-height:100vh;line-height:1.45}
+.pix{font-family:'Press Start 2P',monospace;letter-spacing:.5px;line-height:1.5}
+button{font:inherit;cursor:pointer;color:inherit}
+.top{display:flex;align-items:center;gap:.6rem;padding:.5rem 1rem;background:var(--o);color:#fff;position:sticky;top:0;z-index:20;flex-wrap:wrap}
+.top .logo{font-size:.8rem;color:var(--gold);margin-right:auto}
+.top .who{font-weight:800;font-size:.9rem;opacity:.9}
+.tb{background:#2f3766;border:3px solid #fff;border-radius:10px;padding:.35rem .7rem;font-weight:800;font-size:.85rem;color:#fff}
+.tb:hover,.tb:focus-visible{background:#46519a}
+main{max-width:1060px;margin:0 auto;padding:1rem}
+.card{background:var(--card);border:4px solid var(--o);border-radius:16px;box-shadow:6px 6px 0 var(--o);padding:1.2rem 1.4rem;margin:1rem 0}
+.btn{background:var(--gold);border:4px solid var(--o);border-radius:14px;box-shadow:4px 4px 0 var(--o);padding:.6rem 1.1rem;font-weight:900;font-size:1rem;transition:transform .08s}
+.btn:hover,.btn:focus-visible{transform:translate(-1px,-1px);box-shadow:5px 5px 0 var(--o)}
+.btn:active{transform:translate(3px,3px);box-shadow:1px 1px 0 var(--o)}
+.btn.blue{background:#8fd3ff}.btn.green{background:#8ee39b}.btn.white{background:#fff}.btn.red{background:#ffb3b3}
+.btn:disabled{opacity:.45;cursor:not-allowed;transform:none}
+.row{display:flex;gap:.7rem;flex-wrap:wrap;align-items:center}
+.spread{justify-content:space-between}
+h1,h2,h3{margin:.2rem 0 .6rem}
+h1.pix{font-size:1.3rem}h2.pix{font-size:.95rem}
+.bubble{position:relative;background:#fff;border:4px solid var(--o);border-radius:16px;padding:.9rem 1.1rem;font-size:1.15rem;font-weight:800;flex:1}
+.bubble:before{content:"";position:absolute;left:-16px;top:24px;border:8px solid transparent;border-right-color:var(--o);border-width:8px 16px 8px 0}
+.speaker{display:flex;gap:1rem;align-items:flex-start}
+.speaker svg{flex:0 0 84px;width:84px;height:84px}
+.name{font-size:.8rem;color:var(--soft);font-weight:900;text-align:center;margin-top:.2rem}
+.term{background:#fff2b3;border:none;border-bottom:3px dotted var(--o);padding:0 .15rem;font-weight:900;border-radius:4px}
+.term:hover{background:#ffe066}
+ul.pts{font-size:1.1rem;padding-left:1.3rem}ul.pts li{margin:.45rem 0}
+.key{background:#e3f4ff;border:3px dashed var(--blue);border-radius:12px;padding:.6rem .9rem;font-weight:900;margin-top:.8rem}
+.dots{display:flex;gap:.35rem;flex-wrap:wrap}
+.dot{width:16px;height:16px;border-radius:50%;border:3px solid var(--o);background:#fff}
+.dot.on{background:var(--gold)}.dot.now{background:var(--blue)}
+.choice{display:block;width:100%;text-align:left;background:#fff;border:4px solid var(--o);border-radius:14px;padding:.8rem 1rem;margin:.6rem 0;font-size:1.1rem;font-weight:800;box-shadow:4px 4px 0 var(--o)}
+.choice b{display:inline-block;width:2rem;height:2rem;line-height:1.7rem;text-align:center;border:3px solid var(--o);border-radius:8px;margin-right:.7rem;background:var(--gold)}
+.choice:hover:not(:disabled){background:#fff8dc}
+.choice.wrong{background:#ffd6d6;text-decoration:line-through;opacity:.7}
+.choice.right{background:#c9f5d2}
+.fb{border-radius:12px;padding:.8rem 1rem;font-weight:800;margin:.6rem 0;font-size:1.05rem;border:3px solid var(--o)}
+.fb.good{background:#c9f5d2}.fb.bad{background:#ffe3c2}.fb.hint{background:#fff2b3}
+.tiles{display:flex;flex-wrap:wrap;gap:.6rem;min-height:3.4rem;padding:.6rem;border:3px dashed #9aa0bd;border-radius:12px;background:#fff}
+.tiles.answer{background:#f3fff5;border-color:var(--good);min-height:3.8rem}
+.tile{background:#8fd3ff;border:3px solid var(--o);border-radius:10px;padding:.45rem .75rem;font-weight:900;font-size:1.05rem;box-shadow:3px 3px 0 var(--o)}
+.tile.placed{background:#8ee39b;box-shadow:none;cursor:default}
+.shake{animation:shake .35s}
+@keyframes shake{25%{transform:translateX(-6px)}75%{transform:translateX(6px)}}
+.pop{animation:pop .4s}
+@keyframes pop{50%{transform:scale(1.12)}}
+.bins{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:.7rem;margin-top:.8rem}
+.bin{background:#fff;border:4px solid var(--o);border-radius:14px;padding:.6rem;min-height:110px;text-align:left}
+.bin h4{margin:0 0 .4rem;font-size:1rem}
+.bin .tile{display:inline-block;margin:.2rem;font-size:.9rem}
+.bin.ready{background:#fff8dc;outline:4px dashed var(--blue)}
+.tile.sel{background:var(--gold);transform:translateY(-3px)}
+.qlist{display:grid;grid-template-columns:repeat(auto-fill,minmax(210px,1fr));gap:.7rem}
+.qbtn{background:#fff;border:4px solid var(--o);border-radius:14px;padding:.7rem;text-align:left;font-weight:800;box-shadow:4px 4px 0 var(--o)}
+.qbtn .n{font-size:.7rem;color:var(--soft)}
+.qbtn.done{background:#e4f9e8}
+.coin{display:inline-block;width:1.1rem;height:1.1rem;border-radius:50%;background:var(--gold);border:3px solid var(--o);vertical-align:middle;margin-right:.3rem}
+.coin.off{background:#ddd}
+.tabs{display:flex;gap:.5rem;margin:.4rem 0 0}
+.tab{border:4px solid var(--o);border-bottom:none;border-radius:12px 12px 0 0;padding:.45rem 1rem;background:#d9e7ff;font-weight:900}
+.tab.on{background:var(--card)}
+.tab:disabled{opacity:.5}
+.tabpanel{margin-top:0;border-top-left-radius:0}
+.map{width:100%;height:auto;display:block;border:4px solid var(--o);border-radius:16px;box-shadow:6px 6px 0 var(--o);background:var(--sky1)}
+.bld{cursor:pointer}
+.bld:hover .body,.bld:focus .body{filter:brightness(1.08)}
+.bld:focus{outline:none}.bld:focus .sign{stroke:#fff;stroke-width:5}
+.lessonbtns{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:.7rem;margin-top:1rem}
+.lb{background:#fff;border:4px solid var(--o);border-radius:14px;padding:.7rem .9rem;text-align:left;box-shadow:4px 4px 0 var(--o)}
+.lb .c{font-size:.65rem;color:var(--soft)}
+.lb.next{background:#fff8dc;outline:4px dashed var(--gold)}
+.stars{color:#c7c9d6;font-size:1.2rem;letter-spacing:2px}.stars .on{color:#f2b705;text-shadow:0 0 0 var(--o)}
+input,select{font:inherit;font-weight:800;border:4px solid var(--o);border-radius:12px;padding:.55rem .8rem;width:100%;max-width:360px;background:#fff}
+label{font-weight:900;display:block;margin:.8rem 0 .3rem}
+.say{background:#fff;border:3px solid var(--o);border-radius:10px;padding:.3rem .6rem;font-weight:900;font-size:.85rem;display:inline-flex;align-items:center;gap:.35rem}
+.say svg{width:18px;height:18px}
+.modal{position:fixed;inset:0;background:rgba(20,24,50,.55);display:flex;align-items:center;justify-content:center;z-index:50;padding:1rem}
+.modal .card{max-width:560px;width:100%;max-height:90vh;overflow:auto}
+.toggle{display:flex;align-items:center;justify-content:space-between;gap:1rem;padding:.55rem 0;border-bottom:2px solid #e6e3d6}
+.toggle input{width:auto;transform:scale(1.5)}
+.small{font-size:.85rem;color:var(--soft)}
+.orig{font-size:.9rem;color:var(--soft);background:#f1f1f6;border-radius:10px;padding:.4rem .7rem;margin-top:.6rem}
+table{border-collapse:collapse;width:100%;font-size:.9rem;background:#fff}
+th,td{border:2px solid var(--o);padding:.4rem .5rem;text-align:left;vertical-align:top}
+th{background:#e3f4ff}
+.m4{background:#c9f5d2}.m3{background:#e3f4ff}.m2{background:#fff2b3}.m1{background:#ffd6d6}
+.handout h3{margin-top:1.2rem}
+.handout ol{padding-left:1.4rem}
+.handout li{margin:.6rem 0;break-inside:avoid}
+.handout .a{display:block;border-left:4px solid var(--good);padding:.2rem .6rem;margin-top:.25rem;background:#f6fff7}
+.confetti{position:fixed;pointer-events:none;z-index:60;font-size:2rem}
+@media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+@media print{
+  body{background:#fff}
+  .top,.noprint{display:none!important}
+  .card{box-shadow:none;border:2px solid #000;page-break-inside:auto}
+  main{max-width:none;padding:0}
+  html,html.big{font-size:12px}
+}
+</style>
+</head>
+<body>
+<div class="top noprint" id="top"></div>
+<main id="main"></main>
+<div id="modal"></div>
+<script>
+// ===== NETWORK TOWN CONTENT =====
+// Quest format: o = original handout question, q = simplified question,
+// c = choices (FIRST is always correct; shuffled on screen), h = hint,
+// e = explanation, s = sentence tiles in correct order, k = term to review.
+const LESSONS = [
+{
+  id:'l1', code:'U4L1', title:'Layer 4 Protocols', place:'Post Office', who:'Postmaster Polly',
+  look:{skin:'#f1c27d',hair:'#6b3e26',shirt:'#3b6fd8',hat:'#1f3f99'},
+  intro:"Welcome to the Post Office! Here we deliver data, just like mail. Let's learn how Layer 4 does it.",
+  cards:[
+    {t:"Layer 4 is the delivery service",say:"The [[Transport Layer]] is Layer 4. It is the post office of the network.",pts:["It decides HOW data gets delivered.","It controls how fast data is sent.","It makes sure the data gets there."],key:"Transport Layer = Layer 4 = the network's delivery service"},
+    {t:"Big data gets cut into pieces",say:"You can't mail a giant book in one tiny envelope. Layer 4 cuts big data into small numbered pieces called [[segments]].",pts:["Sending: break the data into segments.","Receiving: put the segments back together.","The numbers help put the pieces in the right order."],key:"Segmentation = cutting data into segments"},
+    {t:"Don't flood the mailbox",say:"If 1,000 letters show up at once, your mailbox overflows! [[Flow control]] stops that.",pts:["The two devices agree on a safe speed.","The sender slows down if the receiver is too busy."],key:"Flow control = sending at a speed the receiver can handle"},
+    {t:"Checking for missing mail",say:"Layer 4 keeps a checklist of every piece it sent. This is [[error checking]].",pts:["If a piece is missing, it notices.","It asks the sender to send that piece again.","It also has a polite way to start and end a connection."],key:"Error checking + resending = reliable delivery"},
+    {t:"Two ways to deliver: TCP and UDP",say:"[[TCP]] is like tracked mail with a signature. [[UDP]] is like tossing flyers on porches.",pts:["TCP is [[connection-oriented]]: it sets up a connection and checks that data arrives.","UDP is [[connectionless]]: it just sends and does not check.","Both are part of the TCP/IP suite, a big set of [[protocols]] (rules)."],key:"TCP = reliable. UDP = fast."},
+    {t:"The TCP 3-way handshake",say:"Before TCP sends data, the two computers say hello in 3 steps. This is the [[3-way handshake]].",pts:["1. SYN: \"Hi! Can we talk?\"","2. SYN/ACK: \"Hi back! Yes, let's talk.\"","3. ACK: \"Great, let's go!\"","When they are done, TCP says goodbye with FIN and ACK."],key:"SYN → SYN/ACK → ACK"},
+    {t:"Why pick UDP? Speed!",say:"Some apps care more about speed than perfect delivery. They use [[UDP]].",pts:["Online gaming would lag if it waited for every check.","Live video streaming uses UDP.","DHCP uses UDP so devices get an IP address fast."],key:"UDP = gaming, streaming, DHCP"},
+    {t:"Port numbers find the right app",say:"Your computer runs many apps at once. [[Port numbers]] tell Layer 4 which app gets the data.",pts:["Layer 4 gets data from Layers 5-7 above it.","It makes segments and passes them down to Layer 3 below.","Tools like Wireshark let you see these packets."],key:"Port number = which app gets the data"}
+  ],
+  acts:[
+    {type:'order',t:"Put the handshake in order",say:"Tap the 3 handshake steps in the right order.",items:["SYN","SYN/ACK","ACK"]},
+    {type:'sort',t:"TCP or UDP?",say:"Tap an item, then tap the delivery type it uses.",bins:["TCP (tracked mail)","UDP (fast flyers)"],items:[["Downloading your homework file",0],["Sending an important email",0],["Playing an online game",1],["Watching a live video stream",1],["Loading a web page",0],["DHCP giving out IP addresses",1]]}
+  ],
+  qs:[
+    {o:"What is the main role of the Transport Layer in the OSI model?",q:"Layer 4 (the Transport Layer) is like the post office of the network. What is its main job?",c:["Deliver data between devices and control how it is sent","Give every website its name","Show pictures and videos on your screen"],h:"A post office moves mail from one place to another.",e:"The Transport Layer is the delivery service. It decides how data is delivered and how fast, and makes sure it gets there.",s:["The Transport Layer","delivers data","between devices","and controls","how it is sent."],k:"Transport Layer"},
+    {o:"How does the Transport Layer handle large amounts of data?",q:"You need to mail a giant book, but the post office only takes small envelopes. What does Layer 4 do with big data?",c:["Cuts it into small numbered pieces called segments","Throws away the extra pages","Waits until the data gets smaller"],h:"Think: smaller pieces that can be put back together.",e:"Layer 4 breaks big data into segments. The receiving device rebuilds the segments into the full data.",s:["It breaks the data","into smaller pieces","called segments","and rebuilds them","at the other end."],k:"Segmentation"},
+    {o:"What mechanism prevents a sender from overwhelming the receiver with too much data?",q:"If the mail carrier stuffs 1,000 letters in your mailbox at once, it overflows! What keeps a sender from sending too fast?",c:["Flow control","Port numbers","The hosts file"],h:"It controls the FLOW of data, like a faucet.",e:"Flow control lets the two devices agree on a speed, so the receiver is not flooded.",s:["Flow control","keeps the sender","from sending data","too fast."],k:"Flow control"},
+    {o:"How does the Transport Layer check for errors in data transmission?",q:"How does Layer 4 know if a piece of the data went missing?",c:["It keeps track of what was sent and checks for missing pieces","It asks the user to count the pieces","It never checks, it just hopes"],h:"Like a checklist of every package that was shipped.",e:"Error checking keeps track of the segments the sender says it sent. If any are missing or broken, it notices.",s:["It keeps track","of every segment sent","and checks","for missing or broken pieces."],k:"Error checking"},
+    {o:"What does the Transport Layer do if data is lost during transmission?",q:"A piece of your data got lost on the way. What does Layer 4 (using TCP) do?",c:["Asks for the missing piece to be sent again","Deletes the whole message","Makes up the missing part"],h:"If your package got lost, you would ask them to ship it again.",e:"When a segment is missing, TCP asks the sender to resend it.",s:["It asks the sender","to resend","the missing data."],k:"Resending lost data"},
+    {o:"What is the difference between connection-oriented and connectionless communication?",q:"Connection-oriented is like a phone call. Connectionless is like shouting a message across the gym. What is the difference?",c:["Connection-oriented sets up and checks a connection first; connectionless just sends","Connectionless is always more secure","They are exactly the same thing"],h:"A phone call starts with \"Hello?\" A shout doesn't wait for anyone.",e:"Connection-oriented (TCP) sets up a connection and keeps checking it. Connectionless (UDP) just sends without checking.",s:["Connection-oriented","sets up a connection first,","but connectionless","just sends the data."],k:"Connection-oriented vs connectionless"},
+    {o:"Why might someone choose UDP over TCP for data transmission?",q:"Why would someone pick UDP instead of TCP?",c:["UDP is faster because it skips the checking","UDP is more reliable than TCP","UDP encrypts all data"],h:"UDP gives up checking so it can win a race.",e:"UDP does not stop to check if data arrived, so it is faster and more efficient.",s:["UDP is faster","because it does not","check that","the data arrived."],k:"UDP"},
+    {o:"What are the key differences between TCP and UDP?",q:"TCP is like tracked mail with a signature. UDP is like tossing flyers. Which sentence is true?",c:["TCP is reliable and checks delivery; UDP is faster but does not check","UDP checks delivery; TCP does not","TCP and UDP both skip checking"],h:"Tracked mail means someone makes sure it got there.",e:"TCP is connection-oriented and reliable. UDP is connectionless, faster, and does not check delivery.",s:["TCP is reliable","and checks delivery,","while UDP is faster","but does not check."],k:"TCP vs UDP"},
+    {o:"What process does TCP use to establish a reliable connection?",q:"Before TCP sends data, two computers say hello in 3 steps. What is this called?",c:["The 3-way handshake (SYN, SYN/ACK, ACK)","A DNS lookup","Flow control"],h:"Three steps, like shaking hands.",e:"TCP uses a 3-way handshake: SYN (hi), SYN/ACK (hi back, okay), ACK (let's go).",s:["TCP uses","a 3-way handshake:","SYN,","SYN/ACK,","then ACK."],k:"3-way handshake"},
+    {o:"In what situations is UDP preferred over TCP?",q:"Which of these would most likely use UDP?",c:["Online gaming and live video streaming","Downloading your homework file","Sending an important email"],h:"Which ones would feel laggy if they had to wait?",e:"Gaming, video streaming, and DHCP use UDP because speed matters more than perfect delivery.",s:["UDP is used","for online gaming,","video streaming,","and DHCP."],k:"When to use UDP"},
+    {o:"Why does the Transport Layer use port numbers?",q:"Your computer runs a browser, email, and a game at the same time. How does data find the right app?",c:["Port numbers tell which application gets the data","The monitor sorts the data","Every app reads all the data"],h:"Like apartment numbers in a big building.",e:"Each application uses a port number, so incoming data goes to the right app.",s:["Port numbers","send the data","to the right","application."],k:"Port numbers"},
+    {o:"How does the Transport Layer interact with other layers in the OSI model?",q:"Layer 4 sits in the middle of the OSI model. How does it work with the other layers?",c:["It takes data from Layers 5-7 above and passes segments down to Layer 3","It works alone and ignores the other layers","It only talks to the monitor"],h:"In the middle of a stack, something comes from above and something goes below.",e:"Layer 4 gets data from the layers above it, makes segments, and hands them to the Network Layer (Layer 3) below.",s:["It takes data","from the layers above","and passes segments","down to Layer 3."],k:"Layer 4 and the other OSI layers"}
+  ]
+},
+{
+  id:'l2', code:'U4L2', title:'Protocols & Ports', place:'Port Apartments', who:'Manny the Manager',
+  look:{skin:'#8d5524',hair:'#1a1a1a',shirt:'#e0662f',hat:null},
+  intro:"Welcome to Port Apartments! The building is the IP address. Every apartment door is a port. Let's meet the tenants!",
+  cards:[
+    {t:"Layers 5, 6, and 7",say:"The top three layers are closest to YOU. They help apps talk across the network.",pts:["Layer 7 [[Application Layer]]: the services you use, like web and email.","Layer 6 [[Presentation Layer]]: formats data and can [[encrypt]] it (the translator).","Layer 5 [[Session Layer]]: starts, manages, and ends the conversation."],key:"5 = Session, 6 = Presentation, 7 = Application"},
+    {t:"Ports are apartment doors",say:"The IP address is like the building's street address. The [[port]] is the apartment door number.",pts:["Most [[protocols]] have their own port number.","The port tells the computer which app should handle the data.","Example: a web browser uses HTTP on port 80."],key:"IP address = building. Port = door."},
+    {t:"Why ports matter",say:"Ports keep traffic organized and safe.",pts:["Traffic direction: data goes to the right app.","Standard: common ports are the same on every network.","Security: a [[firewall]] can lock (block) a port.","Many services can run at the same time."],key:"Firewalls block ports"},
+    {t:"Remote access: Telnet vs SSH",say:"Sometimes you control a computer from far away.",pts:["Telnet, port 23: sends [[plain text]]. Like a postcard anyone can read. Not secure!","SSH, port 22: encrypted. Like a locked box. Admins use it to manage servers safely."],key:"SSH 22 = safe. Telnet 23 = not safe."},
+    {t:"Moving files",say:"These protocols move files between computers.",pts:["FTP, ports 20 and 21: moves files. Not secure.","SFTP, port 22: secure FTP that uses SSH.","TFTP, port 69: Trivial (simple) FTP. Uses [[UDP]] for fast transfers to network devices."],key:"FTP 20/21, SFTP 22, TFTP 69"},
+    {t:"Browsing the web",say:"Every web page you visit uses one of these.",pts:["HTTP, port 80: sends web pages. Not encrypted.","HTTPS, port 443: encrypts data between your browser and the website.","Look for the padlock in the address bar. That means HTTPS."],key:"HTTP 80, HTTPS 443 (padlock)"},
+    {t:"Email delivery",say:"Email uses different protocols to send and to receive.",pts:["SMTP, port 25: sends (delivers) email to a server.","SMTPS, port 587: sends email with encryption.","POP3, port 110: holds your email until you come get it. Some servers use IMAP for mailboxes."],key:"SMTP 25 sends, POP3 110 holds"},
+    {t:"Talking to databases",say:"Databases store and organize information.",pts:["SQL Server uses port 1433.","Apps use it to get data from the database.","Other database types may use other ports."],key:"SQL Server = 1433"}
+  ],
+  acts:[
+    {type:'sort',t:"Safe or not safe?",say:"Tap a protocol, then tap whether it is encrypted.",bins:["Encrypted (locked)","Not encrypted (postcard)"],items:[["SSH",0],["Telnet",1],["HTTPS",0],["HTTP",1],["SFTP",0],["FTP",1]]},
+    {type:'sort',t:"Which door?",say:"Tap a protocol, then tap its port number.",bins:["Port 22","Port 80","Port 443","Port 25"],items:[["SSH",0],["HTTP",1],["HTTPS",2],["SMTP",3],["SFTP",0]]}
+  ],
+  qs:[
+    {o:"What do Layers 5-7 of the OSI model do together?",q:"Layers 5, 6, and 7 are the layers closest to YOU. What do they do together?",c:["Help apps talk across the network: start connections, format data, and give services","Move electricity through cables","Give each device a MAC address"],h:"These layers are about the apps you use.",e:"Layers 5-7 set up connections, format the data, and provide services like web and email.",s:["Layers 5-7","help applications","communicate","across networks."],k:"Layers 5-7"},
+    {o:"Which layer formats and encrypts data?",q:"Which layer is the translator? It formats data and can encrypt (scramble) it.",c:["Presentation Layer (Layer 6)","Session Layer (Layer 5)","Application Layer (Layer 7)"],h:"It decides how the data is PRESENTED.",e:"The Presentation Layer formats data and handles encryption.",s:["The Presentation Layer","formats","and encrypts","data."],k:"Presentation Layer"},
+    {o:"Which layer starts, manages, and ends communication sessions?",q:"Which layer starts a conversation between two apps, keeps it going, and ends it?",c:["Session Layer (Layer 5)","Presentation Layer (Layer 6)","Application Layer (Layer 7)"],h:"A conversation between apps is called a session.",e:"The Session Layer opens, manages, and closes sessions.",s:["The Session Layer","starts, manages,","and ends","sessions."],k:"Session Layer"},
+    {o:"What does a port number tell the computer?",q:"A web browser uses HTTP on port 80. What does the port number tell the computer?",c:["Which application should handle the data","How big the file is","What time it is"],h:"Ports are like apartment doors.",e:"The port number tells the computer which application should handle incoming data.",s:["The port number","tells the computer","which app","should handle the data."],k:"Ports"},
+    {o:"How do port numbers help with network security?",q:"Ports are like doors. How can a firewall use them to keep you safe?",c:["It can lock (block) specific ports","It makes the Wi-Fi faster","It changes every website's name"],h:"What do you do to a door to keep people out?",e:"Firewalls can block specific ports so unwanted traffic can't get in.",s:["Firewalls","can block","specific ports."],k:"Firewalls and ports"},
+    {o:"What is the difference between Telnet and SSH?",q:"Telnet is like a postcard anyone can read. SSH is like a locked box. Which is true?",c:["SSH (port 22) is encrypted; Telnet (port 23) sends plain text","Telnet is encrypted; SSH is not","They both send plain text"],h:"Which one is the locked box?",e:"SSH on port 22 encrypts remote access. Telnet on port 23 sends everything in plain text.",s:["SSH on port 22","is encrypted,","but Telnet on port 23","sends plain text."],k:"SSH vs Telnet"},
+    {o:"What port does HTTPS use, and why is it safer than HTTP?",q:"You see a padlock in your browser's address bar. Which protocol and port is that?",c:["HTTPS on port 443, which encrypts the data","HTTP on port 80, which has no encryption","FTP on port 21, which sends files"],h:"The S stands for Secure.",e:"HTTPS uses port 443 and encrypts data between your browser and the website. HTTP (port 80) does not.",s:["HTTPS uses port 443","and encrypts data","between the browser","and the server."],k:"HTTPS"},
+    {o:"Why is FTP not secure, and what should be used instead?",q:"FTP (ports 20 and 21) moves files but is NOT secure. What is the safe choice?",c:["SFTP, which uses SSH on port 22","Telnet on port 23","HTTP on port 80"],h:"Add an S for Secure. It rides on SSH.",e:"SFTP uses SSH to encrypt file transfers on port 22.",s:["SFTP uses SSH","on port 22","to send files","securely."],k:"SFTP"},
+    {o:"What is TFTP used for?",q:"TFTP (port 69) means Trivial FTP. What is it used for?",c:["Fast, simple file transfers to network devices using UDP","Sending secure email","Looking up website names"],h:"Trivial means simple. It uses the fast Layer 4 protocol.",e:"TFTP uses UDP on port 69 for quick file transfers to network devices.",s:["TFTP uses UDP","on port 69","for fast file transfers","to network devices."],k:"TFTP"},
+    {o:"What is SMTP used for?",q:"When you press SEND on an email, which protocol delivers it to the mail server?",c:["SMTP on port 25","POP3 on port 110","SQL on port 1433"],h:"Simple Mail Transfer Protocol sends the mail.",e:"SMTP (port 25) delivers email to a server. SMTPS (port 587) does it with encryption.",s:["SMTP on port 25","delivers email","to a server."],k:"SMTP"},
+    {o:"What does POP3 do?",q:"Which protocol holds your email at the server until you come pick it up?",c:["POP3 on port 110","SMTP on port 25","HTTP on port 80"],h:"Think Post Office: it holds your mail until you collect it.",e:"POP3 (port 110) receives and stores email until you connect and collect it.",s:["POP3 on port 110","stores email","until the user","collects it."],k:"POP3"},
+    {o:"What port does SQL Server use, and what is it for?",q:"An app needs to get information from a database. Which port does SQL Server use?",c:["Port 1433","Port 443","Port 22"],h:"It's the biggest number on the port list.",e:"SQL Server uses port 1433 so apps can talk to the database.",s:["SQL Server","uses port 1433","to talk","to databases."],k:"SQL Server port 1433"}
+  ]
+},
+{
+  id:'l3', code:'U4L4', title:'Domain Name System (DNS)', place:'DNS Library', who:'Libby the Librarian',
+  look:{skin:'#ffdbac',hair:'#d4a017',shirt:'#8e44ad',hat:null,glasses:true},
+  intro:"Welcome to the DNS Library! Our giant book turns website names into IP addresses. Let's look something up!",
+  cards:[
+    {t:"Names vs numbers",say:"People like names. Computers use numbers ([[IP addresses]]). Turning a name into an IP address is called [[name resolution]].",pts:["It's like your phone contacts.","You tap \"Mom\" and the phone finds her number for you."],key:"Name resolution = name → IP address"},
+    {t:"Option 1: the hosts file",say:"The [[hosts file]] is a small list of names and IP addresses saved on YOUR computer. Like a sticky note.",pts:["It's easy to edit.","Windows keeps it in \\Windows\\system32\\drivers\\etc","Problem: keeping every computer's sticky note up to date is hard!"],key:"Hosts file = local name list"},
+    {t:"Option 2: DNS",say:"[[DNS]] is a giant phone book for the internet.",pts:["It turns google.com into an address like 142.251.40.238.","Without DNS, you'd have to memorize lots of numbers.","Names follow [[FQDN]] format: host.domain.top-level, like www.google.com"],key:"DNS = the internet's phone book"},
+    {t:"How a DNS lookup works",say:"Here are the 5 steps of a lookup.",pts:["1. You type a web address.","2. Your device asks a DNS server for the IP.","3. If it doesn't know, it asks other servers, up to the root server.","4. The IP address comes back and you connect.","5. The answer is saved ([[cache]]) for next time."],key:"Caching = remembering the answer"},
+    {t:"DNS records",say:"Each domain keeps different kinds of records, like sections of the library card.",pts:["[[A record]]: gives an IPv4 address.","AAAA record: gives an IPv6 address.","[[CNAME]]: a nickname (alias) for another name.","[[MX record]]: where the email server is.","Others: NS (who's in charge), PTR (IP → name), TXT (extra info)."],key:"A, AAAA, CNAME, MX"},
+    {t:"Forward and reverse zones",say:"DNS zones handle two kinds of questions.",pts:["[[Forward zone]]: name → IP address (most common).","[[Reverse zone]]: IP address → name.","Zones split the work across many servers."],key:"Forward = name to IP. Reverse = IP to name."},
+    {t:"Kinds of DNS servers",say:"Different librarians have different jobs.",pts:["[[Recursive server]]: the helper who goes and asks other servers until it finds the answer.","[[Authoritative server]]: the official book for a domain.","Primary server holds the original. Secondary is a read-only backup.","Non-authoritative server: answers from a saved (cached) copy."],key:"Recursive asks around. Authoritative is official."},
+    {t:"DNS attacks and protection",say:"Attackers like to trick DNS.",pts:["[[DNS spoofing]] (cache poisoning): a fake IP is saved for a real site, so you land on a fake site.","Adversary-in-the-middle: someone grabs your DNS answer and changes it.","[[DNSSEC]]: adds a digital signature to prove the answer is real.","DoH (DNS over HTTPS) and DoT (DNS over TLS) encrypt DNS so others can't see where you go."],key:"DNSSEC = proves it's real. DoH/DoT = privacy."}
+  ],
+  acts:[
+    {type:'order',t:"Put the lookup in order",say:"Tap the DNS lookup steps in order.",items:["You type a web address","Your device asks a DNS server","Servers ask others, up to the root","The IP address comes back","The answer is saved in the cache"]},
+    {type:'sort',t:"Which record?",say:"Tap what you need, then tap the record that gives it.",bins:["A","AAAA","CNAME","MX"],items:[["An IPv4 address",0],["An IPv6 address",1],["A nickname for a domain",2],["The email server",3]]}
+  ],
+  qs:[
+    {o:"What is the purpose of the Domain Name System (DNS)?",q:"DNS is like the internet's phone book. Why do we need it?",c:["It turns website names into IP addresses","It deletes ads from websites","It gives your computer power"],h:"A phone book turns a name into a number.",e:"DNS translates names like google.com into IP addresses computers can use.",s:["DNS turns","website names","into","IP addresses."],k:"DNS"},
+    {o:"What is name resolution in DNS?",q:"What does \"name resolution\" mean?",c:["Turning a name (like google.com) into an IP address","Changing your username","Fixing a broken website"],h:"Resolve = figure out the answer for a name.",e:"Name resolution is the process of finding the IP address that matches a name.",s:["Name resolution","is turning a name","into an","IP address."],k:"Name resolution"},
+    {o:"What is an A record in DNS?",q:"An A record is one kind of DNS entry. What does it give back?",c:["An IPv4 address","The email server","A nickname for the site"],h:"A is for Address (the IPv4 kind).",e:"An A record returns the IPv4 address for a name.",s:["An A record","returns","an IPv4 address."],k:"A record"},
+    {o:"How does a CNAME record function?",q:"People might type \"mail.school.com\" OR \"webmail.school.com\" for the same place. Which record works like a nickname?",c:["A CNAME, which points one name to another name","An A record, which stores a password","An MX record, which returns an IPv6 address"],h:"C-NAME: a second name (nickname).",e:"A CNAME record creates a nickname (alias) that points to another domain name.",s:["A CNAME","is a nickname","for another","domain name."],k:"CNAME"},
+    {o:"What is the purpose of an MX record?",q:"What does an MX record do?",c:["Tells where a domain's email server is","Gives the IPv4 address of the website","Encrypts DNS traffic"],h:"MX = Mail eXchange.",e:"An MX record points to the email server for a domain.",s:["An MX record","points to","the email server","for a domain."],k:"MX record"},
+    {o:"What is the difference between an authoritative DNS server and a non-authoritative DNS server?",q:"An authoritative server is like the official school office. A non-authoritative server is like a friend who remembers what the office said. What's the difference?",c:["Authoritative gives the official answer; non-authoritative gives a saved (cached) copy","Non-authoritative is always more correct","They are the same thing"],h:"Official office vs. a friend's memory.",e:"Authoritative servers give official answers for a domain. Non-authoritative servers answer from a cached copy.",s:["An authoritative server","gives the official answer,","but a non-authoritative server","uses a saved copy."],k:"Authoritative vs non-authoritative"},
+    {o:"What is the function of a recursive DNS server?",q:"What does a recursive DNS server do?",c:["Asks other DNS servers until it finds the IP address","Holds the only copy of every website","Blocks all websites"],h:"It's the helper who goes and asks around for you.",e:"A recursive server keeps asking other servers until it finds the answer.",s:["A recursive server","asks other servers","until it finds","the IP address."],k:"Recursive server"},
+    {o:"What is the difference between a forward zone and a reverse zone in DNS?",q:"What is the difference between a forward zone and a reverse zone?",c:["Forward: name to IP. Reverse: IP to name.","Forward: IP to name. Reverse: name to IP.","Both turn names into email addresses"],h:"Forward is the normal direction: you start with a name.",e:"A forward zone turns names into IP addresses. A reverse zone turns IP addresses into names.",s:["A forward zone","turns names into IPs,","and a reverse zone","turns IPs into names."],k:"Forward vs reverse zone"},
+    {o:"How does DNS caching improve performance?",q:"How does caching make DNS faster?",c:["It saves answers so the next lookup is faster","It deletes old websites","It makes the internet slower but safer"],h:"Remembering is faster than looking it up again.",e:"Caching saves DNS answers, so the next time no one has to ask around.",s:["Caching","saves DNS answers","so the next lookup","is faster."],k:"DNS caching"},
+    {o:"What is DNSSEC and why is it important?",q:"Attackers can trick DNS into sending you to a fake site. What does DNSSEC do?",c:["Adds a digital signature to prove DNS answers are real","Hides which websites you visit","Makes online games faster"],h:"A signature proves who really sent something.",e:"DNSSEC adds a digital signature so you know the DNS answer is real and from the right sender.",s:["DNSSEC adds","a digital signature","to prove","the answer is real."],k:"DNSSEC"},
+    {o:"What is the difference between DNS over HTTPS (DoH) and DNS over TLS (DoT)?",q:"DoH and DoT both encrypt DNS for privacy. What is the difference?",c:["DoH hides DNS inside HTTPS web traffic; DoT uses its own secure TLS port","DoH is for email; DoT is for games","Only DoT encrypts anything"],h:"Look at the names: over HTTPS vs. over TLS.",e:"DoH sends DNS inside normal HTTPS web traffic. DoT encrypts DNS using its own secure port.",s:["DoH sends DNS","inside HTTPS web traffic,","while DoT uses","its own secure TLS port."],k:"DoH vs DoT"},
+    {o:"What role does the hosts file play in DNS resolution?",q:"The hosts file is like a sticky note saved on your computer. What role does it play?",c:["It is a local list your computer checks to match names to IPs","It is the main DNS server for the whole internet","It stores your browser history"],h:"Local means on your own computer.",e:"The hosts file is a local list of names and IP addresses your computer can check.",s:["The hosts file","is a local list","of names","and IP addresses."],k:"Hosts file"}
+  ]
+},
+{
+  id:'l4', code:'U5L3', title:'FHRP, VIP, VLANs & Subinterfaces', place:'Network High School', who:'Principal Ray',
+  look:{skin:'#c68642',hair:'#3b2a1a',shirt:'#2e9e5b',hat:null,tie:true},
+  intro:"Welcome to Network High! Today we learn how a network keeps working when a router breaks, and how to split one network into hallways.",
+  cards:[
+    {t:"The door out of the network",say:"The [[default gateway]] is a [[router]]. It's the door your computer uses to reach the rest of the world.",pts:["Router A is the default gateway.","If Router A breaks... nobody can leave the network!","We need a backup plan."],key:"Default gateway = the way out"},
+    {t:"A backup router has a problem",say:"We can add Router B as a backup. But every PC is set to Router A's address!",pts:["Changing every PC by hand would take forever.","We need an address that can move to the backup router."],key:"Backup is only helpful if PCs can find it"},
+    {t:"The Virtual IP (VIP)",say:"A [[VIP]] is a shared address. It's like the front office phone number. It doesn't belong to one person.",pts:["PCs use the VIP as their default gateway.","Whichever router is in charge answers the VIP.","It helps with backup and with sharing the work ([[load balancing]])."],key:"VIP = shared gateway address"},
+    {t:"FHRP picks who's in charge",say:"An [[FHRP]] (First Hop Redundancy Protocol) decides which router is in charge.",pts:["The [[active router]] answers the VIP.","The [[standby router]] waits as a backup.","Common FHRPs: [[HSRP]], [[VRRP]], and [[GLBP]].","GLBP lets more than one router be active at once."],key:"FHRP + VIP = a network that keeps working"},
+    {t:"When Router A crashes",say:"Watch what happens when the active router fails.",pts:["1. Router A crashes.","2. FHRP moves the VIP to Router B.","3. Router B becomes the active router.","4. PCs keep working. Nobody had to change anything!"],key:"Failover is automatic"},
+    {t:"VLANs: hallways in one school",say:"A [[VLAN]] splits one big network into smaller networks, like hallways in a school.",pts:["Example switch: ports 1-8 = Sales (VLAN 10), ports 9-16 = Marketing (VLAN 20), ports 17-32 = Accounting (VLAN 30).","Better security and organization.","Devices in different VLANs need a router to talk."],key:"VLAN = a mini-network inside one switch"},
+    {t:"Subinterfaces: lanes on one road",say:"The router has only ONE cable to the switch. A [[subinterface]] is a virtual port that makes a lane for each VLAN.",pts:["VLAN 10 Sales → Gig0/1.10","VLAN 20 Marketing → Gig0/1.20","VLAN 30 IT → Gig0/1.30","Each subinterface gets a VLAN number and its own IP address. It is the gateway for that VLAN."],key:"Subinterface = virtual port for one VLAN"},
+    {t:"Router-on-a-stick",say:"One router port + one cable + many subinterfaces = [[router-on-a-stick]].",pts:["Traffic from each VLAN has a [[VLAN tag]].","The router reads the tag and uses the matching subinterface.","This saves ports and cables."],key:"One port, many VLANs"}
+  ],
+  acts:[
+    {type:'order',t:"Put the failover in order",say:"Tap what happens, in order, when Router A fails.",items:["Router A crashes","FHRP moves the VIP to Router B","Router B becomes the active router","PCs keep working with no changes"]},
+    {type:'sort',t:"Which VLAN?",say:"A PC is plugged into a switch port. Tap the PC, then its VLAN.",bins:["Sales VLAN 10 (ports 1-8)","Marketing VLAN 20 (ports 9-16)","Accounting VLAN 30 (ports 17-32)"],items:[["PC on port 3",0],["PC on port 12",1],["PC on port 20",2],["PC on port 8",0],["PC on port 16",1],["PC on port 30",2]]}
+  ],
+  qs:[
+    {o:"What is the purpose of a First Hop Redundancy Protocol (FHRP)?",q:"The default gateway is your network's door to the outside. What is an FHRP for?",c:["Keeps the default gateway working even if a router fails","Splits a switch into VLANs","Turns names into IP addresses"],h:"Redundancy means having a backup.",e:"An FHRP keeps the default gateway available, even if one router fails.",s:["An FHRP keeps","the default gateway","working","if a router fails."],k:"FHRP"},
+    {o:"How does a Virtual IP (VIP) contribute to network redundancy?",q:"A Virtual IP (VIP) is like the front office phone number. It doesn't belong to one person. How does it help?",c:["Devices use one shared address that a backup router can take over","It changes each PC's IP address every minute","It blocks hackers from the network"],h:"Shared phone number: whoever is working answers it.",e:"A VIP isn't tied to one router, so a backup router can take it over.",s:["A VIP is a shared address","that can move","to a backup router."],k:"Virtual IP (VIP)"},
+    {o:"What role does a VIP play in an FHRP setup?",q:"In an FHRP setup, what do the PCs use as their default gateway?",c:["The Virtual IP (VIP)","Router B's normal IP address","The DNS server"],h:"It's the shared address.",e:"PCs are set to use the VIP as their default gateway. The FHRP decides which router answers it.",s:["PCs use the VIP","as their","default gateway."],k:"VIP as the default gateway"},
+    {o:"Name three common FHRP protocols.",q:"Which list shows three FHRPs?",c:["HSRP, VRRP, and GLBP","HTTP, FTP, and SSH","TCP, UDP, and DNS"],h:"They all end with P and help routers back each other up.",e:"HSRP, VRRP, and GLBP are three common First Hop Redundancy Protocols.",s:["Three FHRPs are","HSRP, VRRP,","and GLBP."],k:"HSRP, VRRP, GLBP"},
+    {o:"How does GLBP improve network performance compared to HSRP and VRRP?",q:"With HSRP and VRRP, one router works and one waits. How is GLBP better?",c:["Several routers work at the same time (load balancing)","It turns off backup routers","It encrypts all traffic"],h:"LB in GLBP stands for Load Balancing.",e:"GLBP shares the traffic across more than one active router.",s:["GLBP shares the work","across several","active routers."],k:"GLBP load balancing"},
+    {o:"What happens when the primary router in an FHRP setup fails?",q:"Router A (the active router) crashes. What happens?",c:["The standby router takes over the VIP automatically","Everyone loses internet until it's fixed","Each PC must be changed by hand"],h:"That's the whole point of a backup.",e:"The FHRP moves the VIP to the standby router, which becomes the active router.",s:["The standby router","takes over the VIP","and becomes","the active router."],k:"Failover"},
+    {o:"Which FHRP protocol supports multiple active gateways instead of just one?",q:"Which FHRP lets more than one router be active at the same time?",c:["GLBP","HSRP","VRRP"],h:"The one with Load Balancing in its name.",e:"GLBP supports multiple active gateways.",s:["GLBP","supports","multiple active gateways."],k:"GLBP"},
+    {o:"What is the main purpose of a VLAN?",q:"A VLAN is like splitting one big school into separate hallways. What is the main purpose of a VLAN?",c:["Split one network into smaller, separate networks","Connect to the internet faster","Give websites names"],h:"Hallways split one building into parts.",e:"A VLAN breaks a large network into smaller logical parts (segments).",s:["A VLAN splits","one big network","into smaller","logical networks."],k:"VLAN"},
+    {o:"Why are VLANs useful in large networks?",q:"Why are VLANs helpful in a big network?",c:["They improve security and organization","They remove the need for routers","They make cables longer"],h:"Hallways keep groups separate and organized.",e:"VLANs improve security and keep a big network organized.",s:["VLANs improve","security","and organization."],k:"Why VLANs help"},
+    {o:"Can devices in different VLANs communicate with each other by default?",q:"Can a PC in the Sales VLAN talk to a PC in the Marketing VLAN all by itself?",c:["No, they need a router to connect them","Yes, always","Yes, if they use the same switch"],h:"Each VLAN is its own mini-network.",e:"Devices in different VLANs can't talk by default. They need a router.",s:["No,","devices in different VLANs","need a router","to talk."],k:"VLANs need a router"},
+    {o:"What is the role of a subinterface in VLAN routing?",q:"What is a subinterface?",c:["A virtual port on the router that is the gateway for one VLAN","A second power cable","A backup switch"],h:"Sub = a smaller part of a real interface.",e:"A subinterface is a virtual port. Each one acts as the gateway for one VLAN.",s:["A subinterface","is a virtual port","that acts as the gateway","for one VLAN."],k:"Subinterface"},
+    {o:"What is \"router-on-a-stick\" in networking?",q:"What is router-on-a-stick?",c:["One router port and cable that carry many VLANs using subinterfaces","A router mounted on a pole outside","A switch with no VLANs"],h:"The \"stick\" is the one cable.",e:"Router-on-a-stick uses one router port with a subinterface for each VLAN.",s:["Router-on-a-stick","uses one router port","with subinterfaces","for many VLANs."],k:"Router-on-a-stick"},
+    {o:"How does a router differentiate traffic from different VLANs on a single interface?",q:"Traffic from Sales, Marketing, and IT all comes down ONE cable. How does the router tell it apart?",c:["Each frame has a VLAN tag that matches a subinterface","It guesses","It looks at the color of the cable"],h:"Something on the traffic says which VLAN it belongs to.",e:"Traffic carries a VLAN tag. The router sends it to the subinterface with the same VLAN number.",s:["The router reads","the VLAN tag","and uses","the matching subinterface."],k:"VLAN tags"},
+    {o:"Why would a network use subinterfaces instead of multiple physical interfaces?",q:"Why use subinterfaces instead of a separate cable for every VLAN?",c:["One port can serve many VLANs, saving ports and cables","Physical ports don't work with VLANs","Subinterfaces don't need IP addresses"],h:"Think about how many cables you would need.",e:"Subinterfaces let one physical port handle many VLANs, which saves ports and cables.",s:["Subinterfaces","let one port","serve many VLANs","and save cables."],k:"Why subinterfaces"},
+    {o:"What information must be configured on a subinterface for VLAN routing?",q:"What two things does each subinterface need?",c:["A VLAN number and an IP address","A website name and a password","The MAC address of every PC"],h:"Look at the Gig0/1.10 example card.",e:"Each subinterface needs its VLAN number and its own IP address.",s:["Each subinterface needs","a VLAN number","and an","IP address."],k:"Subinterface settings"},
+    {o:"If a VLAN needs to communicate with another VLAN, what must be configured on the router?",q:"Sales (VLAN 10) needs to talk to IT (VLAN 30). What must be set up on the router?",c:["A subinterface (gateway) for each VLAN so it can route between them","A bigger switch","Turning off the VLANs"],h:"Each VLAN needs its own lane and gateway on the router.",e:"The router needs a subinterface for each VLAN so it can route traffic between them.",s:["The router needs","a subinterface","for each VLAN","to route between them."],k:"Routing between VLANs"}
+  ]
+}
+];
+
+const GLOSSARY = {
+  "transport layer":"Layer 4 of the OSI model. The network's delivery service.",
+  "segments":"Small numbered pieces of data made by Layer 4.",
+  "flow control":"Making sure the sender doesn't send faster than the receiver can handle.",
+  "error checking":"Keeping track of what was sent and noticing missing or broken pieces.",
+  "tcp":"Transmission Control Protocol. Reliable delivery that checks every piece arrives.",
+  "udp":"User Datagram Protocol. Fast delivery that does not check if data arrived.",
+  "connection-oriented":"Sets up a connection first and keeps checking it (like a phone call). TCP is connection-oriented.",
+  "connectionless":"Just sends data without setting up or checking a connection. UDP is connectionless.",
+  "protocols":"Rules for how data is sent and received.",
+  "3-way handshake":"How TCP starts a connection: SYN, SYN/ACK, ACK.",
+  "port numbers":"Numbers that tell the computer which app should get the data.",
+  "port":"A number that works like an apartment door. It tells which app gets the data.",
+  "application layer":"Layer 7. The network services you use, like web and email.",
+  "presentation layer":"Layer 6. Formats data and handles encryption.",
+  "session layer":"Layer 5. Starts, manages, and ends conversations between apps.",
+  "encrypt":"To scramble data so only the right person can read it.",
+  "plain text":"Data that is not scrambled. Anyone who grabs it can read it.",
+  "firewall":"A security tool that can block traffic, including specific ports.",
+  "ip addresses":"Number addresses that computers use to find each other.",
+  "name resolution":"Finding the IP address that goes with a name.",
+  "hosts file":"A small list of names and IP addresses saved on your own computer.",
+  "dns":"Domain Name System. The internet's phone book that turns names into IP addresses.",
+  "fqdn":"Fully Qualified Domain Name. A full name like www.google.com (host.domain.top-level).",
+  "cache":"A saved copy of an answer so it's faster next time.",
+  "a record":"A DNS record that gives back an IPv4 address.",
+  "cname":"A DNS record that is a nickname (alias) for another name.",
+  "mx record":"A DNS record that tells where a domain's email server is.",
+  "forward zone":"The part of DNS that turns names into IP addresses.",
+  "reverse zone":"The part of DNS that turns IP addresses into names.",
+  "recursive server":"A DNS server that asks other servers until it finds the answer.",
+  "authoritative server":"A DNS server that gives the official answer for a domain.",
+  "dns spoofing":"An attack that saves a fake IP address for a real website (also called cache poisoning).",
+  "dnssec":"Adds a digital signature to DNS answers to prove they are real.",
+  "default gateway":"The router your computer uses to reach other networks.",
+  "router":"A device that connects different networks together.",
+  "vip":"Virtual IP. A shared address that is not tied to just one router.",
+  "load balancing":"Sharing the work across more than one device.",
+  "fhrp":"First Hop Redundancy Protocol. Keeps the default gateway working if a router fails.",
+  "active router":"The router that is currently in charge and answering the VIP.",
+  "standby router":"The backup router that waits to take over.",
+  "hsrp":"Hot Standby Router Protocol. A Cisco FHRP with one active router and one standby.",
+  "vrrp":"Virtual Router Redundancy Protocol. An open-standard FHRP with one active router.",
+  "glbp":"Gateway Load Balancing Protocol. An FHRP where several routers can be active at once.",
+  "vlan":"Virtual LAN. A smaller network created inside one switch.",
+  "subinterface":"A virtual port on a router. Each one handles one VLAN.",
+  "router-on-a-stick":"One router port and cable that route many VLANs using subinterfaces.",
+  "vlan tag":"A label on network traffic that says which VLAN it belongs to."
+};
+
+</script>
+<script>
+// ===== APP =====
+const KEY='nt_town_v1';
+const O='#1d2340';
+const $=s=>document.querySelector(s);
+const esc=s=>String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const strip=s=>String(s).replace(/\[\[(.+?)\]\]/g,'$1');
+function shuffle(a){a=a.slice();for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]]}return a}
+function fresh(){return{name:'',period:'',set:{pin:'1234',read:false,readCh:false,choices:3,big:false,hints:true,orig:false},p:{}}}
+let S;try{S=JSON.parse(localStorage.getItem(KEY))||fresh()}catch(e){S=fresh()}
+S.set=Object.assign(fresh().set,S.set||{});
+function save(){try{localStorage.setItem(KEY,JSON.stringify(S))}catch(e){}}
+function P(id){return S.p[id]||(S.p[id]={studied:false,card:0,acts:{},q:{},ts:0,tq:0})}
+const L=id=>LESSONS.find(l=>l.id===id);
+
+// ---- time tracking (seconds in Study vs Quests) ----
+let MODE=null,tick=0;
+setInterval(()=>{if(MODE&&!document.hidden){P(MODE.l)[MODE.k]++;if(++tick%10===0)save()}},1000);
+window.addEventListener('beforeunload',save);
+
+// ---- read aloud ----
+function speak(t){try{speechSynthesis.cancel();const u=new SpeechSynthesisUtterance(strip(t));u.rate=.92;speechSynthesis.speak(u)}catch(e){}}
+function stopSpeak(){try{speechSynthesis.cancel()}catch(e){}}
+const SPK='<svg viewBox="0 0 24 24"><path d="M3 9h4l5-4v14l-5-4H3z" fill="#1d2340"/><path d="M16 8c2 2 2 6 0 8M19 5c4 4 4 10 0 14" stroke="#1d2340" stroke-width="2.4" fill="none" stroke-linecap="round"/></svg>';
+let READ='';
+function sayBtn(t){READ=t;return `<button class="say" onclick="speak(READ)" aria-label="Read aloud">${SPK} Read to me</button>`}
+function autoRead(t){if(S.set.read)setTimeout(()=>speak(t),250)}
+
+// ---- art ----
+function avatar(k){return `<svg viewBox="0 0 64 64" aria-hidden="true">
+<rect x="12" y="40" width="40" height="26" rx="10" fill="${k.shirt}" stroke="${O}" stroke-width="3"/>
+${k.tie?`<path d="M32 42l-4 4 4 14 4-14z" fill="#ffcc33" stroke="${O}" stroke-width="2"/>`:''}
+<circle cx="32" cy="26" r="14" fill="${k.skin}" stroke="${O}" stroke-width="3"/>
+<path d="M18 24c0-10 6-14 14-14s14 4 14 14c-4-5-10-6-14-6s-10 1-14 6z" fill="${k.hair}" stroke="${O}" stroke-width="2.5"/>
+${k.hat?`<rect x="16" y="9" width="32" height="8" rx="3" fill="${k.hat}" stroke="${O}" stroke-width="2.5"/><rect x="12" y="15" width="24" height="4" rx="2" fill="${k.hat}" stroke="${O}" stroke-width="2"/>`:''}
+<circle cx="27" cy="28" r="2.2" fill="${O}"/><circle cx="37" cy="28" r="2.2" fill="${O}"/>
+${k.glasses?`<circle cx="27" cy="28" r="4.5" fill="none" stroke="${O}" stroke-width="2"/><circle cx="37" cy="28" r="4.5" fill="none" stroke="${O}" stroke-width="2"/><path d="M31.5 28h1" stroke="${O}" stroke-width="2"/>`:''}
+<path d="M27 33c3 3 7 3 10 0" stroke="${O}" stroke-width="2.5" fill="none" stroke-linecap="round"/></svg>`}
+function pip(){return `<svg viewBox="0 0 64 64" aria-hidden="true">
+<rect x="22" y="52" width="5" height="10" fill="${O}"/><rect x="37" y="52" width="5" height="10" fill="${O}"/>
+<rect x="6" y="14" width="52" height="40" rx="7" fill="#ffcc33" stroke="${O}" stroke-width="3"/>
+<path d="M8 17l24 18 24-18" fill="none" stroke="${O}" stroke-width="3" stroke-linejoin="round"/>
+<circle cx="23" cy="40" r="3" fill="${O}"/><circle cx="41" cy="40" r="3" fill="${O}"/>
+<path d="M27 46c3 3 7 3 10 0" stroke="${O}" stroke-width="2.5" fill="none" stroke-linecap="round"/>
+<circle cx="17" cy="45" r="3" fill="#ff9aa2"/><circle cx="47" cy="45" r="3" fill="#ff9aa2"/>
+<path d="M46 4l4 8M54 8l-6 6" stroke="${O}" stroke-width="3" stroke-linecap="round"/></svg>`}
+const PIP={skin:'',name:'Pip the Packet'};
+function speaker(svg,name,text,id){return `<div class="speaker"><div>${svg}<div class="name">${esc(name)}</div></div><div class="bubble" ${id?`id="${id}"`:''}>${text}</div></div>`}
+function rich(t){return esc(t).replace(/\[\[(.+?)\]\]/g,(m,w)=>`<button class="term" onclick="term('${w.replace(/'/g,'')}')">${w}</button>`)}
+function term(w){const d=GLOSSARY[w.toLowerCase()]||'';modal(`<h2 class="pix">${esc(w)}</h2><p style="font-size:1.2rem">${esc(d)}</p><div class="row">${sayBtnRaw(w+'. '+d)}<button class="btn" onclick="closeModal()">Got it</button></div>`)}
+function sayBtnRaw(t){return `<button class="say" onclick='speak(${JSON.stringify(t).replace(/'/g,"&#39;")})'>${SPK} Read to me</button>`}
+
+// ---- progress helpers ----
+function stats(l){const p=P(l.id);let ans=0,first=0,hints=0,done=0,own=0;
+  l.qs.forEach((q,i)=>{const r=p.q[i];if(!r)return;if(r.tries>0&&r.correct){ans++;if(r.first)first++}if(r.hint)hints++;if(r.done){done++;if(!r.help&&!r.slips)own++}});
+  const acts=l.acts.filter((a,i)=>p.acts[i]).length;
+  return{ans,first,hints,done,own,acts,pct:ans?Math.round(100*first/ans):null}}
+function mastery(pct){if(pct===null)return[0,'Not started'];if(pct>=90)return[4,'Mastered'];if(pct>=75)return[3,'Proficient'];if(pct>=60)return[2,'Developing'];return[1,'Beginning']}
+function starsOf(l){const p=P(l.id),s=stats(l);return[p.studied,s.acts===l.acts.length,s.done===l.qs.length]}
+function starHTML(l){return '<span class="stars" aria-label="stars">'+starsOf(l).map(x=>`<span class="${x?'on':''}">★</span>`).join('')+'</span>'}
+function nextLesson(){return LESSONS.find(l=>!starsOf(l).every(Boolean))}
+function fmt(sec){const m=Math.floor(sec/60),s=sec%60;return m?`${m} min ${s} s`:`${s} s`}
+
+// ---- top bar ----
+function topBar(){$('#top').innerHTML=`<span class="logo pix">NETWORK TOWN</span>${S.name?`<span class="who">${esc(S.name)}${S.period?' · Period '+esc(S.period):''}</span>
+<button class="tb" onclick="goMap()">Town Map</button><button class="tb" onclick="goReport()">My Report</button>`:''}<button class="tb" onclick="teacher()" aria-label="Teacher settings">Teacher ⚙</button>`}
+function screen(html){stopSpeak();$('#main').innerHTML=html;window.scrollTo(0,0)}
+
+// ---- start ----
+function goStart(){MODE=null;topBar();screen(`<div class="card" style="text-align:center">
+<h1 class="pix" style="font-size:1.8rem;color:var(--blue)">NETWORK TOWN</h1>
+<div style="width:130px;margin:0 auto">${pip()}</div>
+<p style="font-size:1.2rem">Hi! I'm <b>Pip the Packet</b>. Help me deliver data all over town.<br>First you <b>study</b>, then you go on <b>quests</b>!</p>
+<div style="text-align:left;max-width:380px;margin:0 auto">
+<label for="nm">Your first and last name</label><input id="nm" autocomplete="off" value="${esc(S.name)}">
+<label for="pd">Class period</label><input id="pd" autocomplete="off" value="${esc(S.period)}">
+<p id="err" style="color:var(--bad);font-weight:900"></p>
+<button class="btn" style="font-size:1.2rem" onclick="startGo()">Let's go! ▶</button></div></div>`);$('#nm').focus()}
+function startGo(){const n=$('#nm').value.trim(),p=$('#pd').value.trim();if(!n){$('#err').textContent='Please type your name.';return}S.name=n;S.period=p;save();goMap()}
+
+// ---- map ----
+function mapSVG(){const st=LESSONS.map(starsOf);
+const stars=(i,x)=>st[i].map((on,k)=>`<polygon transform="translate(${x+k*26},0)" points="10,0 13,7 20,7 14.5,11.5 16.5,19 10,14.5 3.5,19 5.5,11.5 0,7 7,7" fill="${on?'#ffcc33':'#d6d8e3'}" stroke="${O}" stroke-width="2"/>`).join('');
+const sign=(x,w,t)=>`<rect class="sign" x="${x}" y="0" width="${w}" height="34" rx="6" fill="#fff" stroke="${O}" stroke-width="3"/><text x="${x+w/2}" y="23" text-anchor="middle" font-family="'Press Start 2P',monospace" font-size="12" fill="${O}">${t}</text>`;
+const g=(i,inner)=>`<g class="bld" tabindex="0" role="button" aria-label="${esc(LESSONS[i].place)}: ${esc(LESSONS[i].title)}" onclick="openLesson('${LESSONS[i].id}')" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();openLesson('${LESSONS[i].id}')}">${inner}</g>`;
+return `<svg class="map" viewBox="0 0 1000 560" role="img" aria-label="Town map">
+<defs><linearGradient id="sk" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#67c3ff"/><stop offset="1" stop-color="#c9efff"/></linearGradient></defs>
+<rect width="1000" height="560" fill="url(#sk)"/>
+<circle cx="905" cy="75" r="38" fill="#ffe066" stroke="${O}" stroke-width="4"/>
+<g fill="#fff" stroke="${O}" stroke-width="3"><g transform="translate(120,70)"><circle cx="0" cy="10" r="18"/><circle cx="24" cy="0" r="24"/><circle cx="50" cy="12" r="16"/></g><g transform="translate(560,50)"><circle cx="0" cy="10" r="16"/><circle cx="22" cy="0" r="22"/><circle cx="46" cy="10" r="15"/></g></g>
+<ellipse cx="200" cy="420" rx="320" ry="110" fill="#8ee08a" stroke="${O}" stroke-width="4"/><ellipse cx="800" cy="420" rx="330" ry="120" fill="#7bd66b" stroke="${O}" stroke-width="4"/>
+<rect x="0" y="400" width="1000" height="160" fill="#5cc85c" stroke="${O}" stroke-width="4"/>
+<rect x="0" y="468" width="1000" height="56" fill="#8a8fa3" stroke="${O}" stroke-width="4"/>
+<path d="M0 496H1000" stroke="#fff" stroke-width="5" stroke-dasharray="26 20"/>
+${g(0,`<g class="body"><rect x="40" y="300" width="190" height="168" fill="#ff7a6b" stroke="${O}" stroke-width="4"/><polygon points="28,302 135,236 242,302" fill="#3b6fd8" stroke="${O}" stroke-width="4"/>
+<rect x="110" y="390" width="50" height="78" fill="#8b5a2b" stroke="${O}" stroke-width="4"/><rect x="58" y="330" width="40" height="36" fill="#bfe9ff" stroke="${O}" stroke-width="3"/><rect x="172" y="330" width="40" height="36" fill="#bfe9ff" stroke="${O}" stroke-width="3"/>
+<rect x="176" y="410" width="34" height="30" rx="8" fill="#3b6fd8" stroke="${O}" stroke-width="3"/><rect x="190" y="440" width="6" height="28" fill="${O}"/><rect x="62" y="400" width="34" height="22" fill="#fff" stroke="${O}" stroke-width="3"/><path d="M62 400l17 12 17-12" fill="none" stroke="${O}" stroke-width="3"/></g>
+<g transform="translate(0,190)">${sign(40,190,'POST OFFICE')}</g><g transform="translate(97,530)">${stars(0,0)}</g>`)}
+${g(1,`<g class="body"><rect x="275" y="150" width="175" height="318" fill="#ffb454" stroke="${O}" stroke-width="4"/><rect x="265" y="138" width="195" height="18" fill="#c8742a" stroke="${O}" stroke-width="4"/>
+${[22,80,443,25,110,1433].map((n,k)=>{const x=292+(k%2)*80,y=172+Math.floor(k/2)*76;return `<rect x="${x}" y="${y}" width="62" height="50" fill="#bfe9ff" stroke="${O}" stroke-width="3"/><text x="${x+31}" y="${y+32}" text-anchor="middle" font-family="'Press Start 2P',monospace" font-size="${n>999?9:12}" fill="${O}">${n}</text>`}).join('')}
+<rect x="335" y="410" width="55" height="58" fill="#8b5a2b" stroke="${O}" stroke-width="4"/></g>
+<g transform="translate(0,90)">${sign(268,190,'PORT APTS')}</g><g transform="translate(325,530)">${stars(1,0)}</g>`)}
+${g(2,`<g class="body"><rect x="505" y="300" width="205" height="168" fill="#f8efd4" stroke="${O}" stroke-width="4"/><polygon points="495,302 607,240 720,302" fill="#b08ad8" stroke="${O}" stroke-width="4"/>
+${[525,570,640,685].map(x=>`<rect x="${x}" y="318" width="16" height="150" fill="#fff" stroke="${O}" stroke-width="3"/>`).join('')}
+<rect x="590" y="396" width="36" height="72" fill="#8b5a2b" stroke="${O}" stroke-width="4"/><rect x="584" y="318" width="48" height="38" fill="#3b6fd8" stroke="${O}" stroke-width="3"/><path d="M608 322v30M588 326h16M612 326h16" stroke="#fff" stroke-width="3"/></g>
+<g transform="translate(0,190)">${sign(510,195,'DNS LIBRARY')}</g><g transform="translate(570,530)">${stars(2,0)}</g>`)}
+${g(3,`<g class="body"><rect x="760" y="290" width="215" height="178" fill="#e8614d" stroke="${O}" stroke-width="4"/><rect x="835" y="215" width="66" height="80" fill="#e8614d" stroke="${O}" stroke-width="4"/><polygon points="828,218 868,182 908,218" fill="#3b6fd8" stroke="${O}" stroke-width="4"/>
+<circle cx="868" cy="250" r="18" fill="#fff" stroke="${O}" stroke-width="3"/><path d="M868 238v12l8 5" stroke="${O}" stroke-width="3" fill="none"/>
+${[780,920].map(x=>`<rect x="${x}" y="320" width="38" height="36" fill="#bfe9ff" stroke="${O}" stroke-width="3"/><rect x="${x}" y="378" width="38" height="36" fill="#bfe9ff" stroke="${O}" stroke-width="3"/>`).join('')}
+<rect x="842" y="392" width="52" height="76" fill="#8b5a2b" stroke="${O}" stroke-width="4"/><rect x="936" y="190" width="5" height="100" fill="${O}"/><rect x="941" y="192" width="30" height="20" fill="#ffcc33" stroke="${O}" stroke-width="3"/></g>
+<g transform="translate(0,140)">${sign(770,195,'NETWORK HIGH')}</g><g transform="translate(830,530)">${stars(3,0)}</g>`)}
+</svg>`}
+function goMap(){MODE=null;if(!S.name)return goStart();topBar();const nx=nextLesson();
+screen(`${speaker(pip(),'Pip the Packet',nx?`Tap a building to visit it. I suggest the <b>${esc(nx.place)}</b> next!`:`You finished every building in town! Check <b>My Report</b> and show your teacher.`)}
+<div style="margin-top:1rem">${mapSVG()}</div>
+<p class="small">★ Study &nbsp; ★ Hands-on &nbsp; ★ Quests</p>
+<div class="lessonbtns">${LESSONS.map((l,i)=>`<button class="lb ${nx&&nx.id===l.id?'next':''}" onclick="openLesson('${l.id}')"><div class="c pix">${i+1}. ${l.code}</div><div style="font-weight:900;font-size:1.05rem">${esc(l.place)}</div><div>${esc(l.title)}</div>${starHTML(l)}</button>`).join('')}</div>`)}
+
+// ---- lesson hub ----
+let CUR=null;
+function openLesson(id){CUR=L(id);const p=P(id);if(!p.studied)goStudy(id,p.card||0);else goQuests(id)}
+function tabs(l,which){const p=P(l.id);return `<div class="row spread noprint"><h1 class="pix" style="font-size:1rem">${esc(l.place)} <span class="small">· ${esc(l.code)} ${esc(l.title)}</span></h1>${starHTML(l)}</div>
+<div class="tabs"><button class="tab ${which==='s'?'on':''}" onclick="goStudy('${l.id}',0)">📖 Study</button><button class="tab ${which==='q'?'on':''}" ${p.studied?'':'disabled title="Finish the Study cards first"'} onclick="goQuests('${l.id}')">⭐ Quests${p.studied?'':' 🔒'}</button></div>`}
+
+// ---- study ----
+function studyItems(l){return l.cards.map(c=>({kind:'card',c})).concat(l.acts.map((a,i)=>({kind:'act',a,i})))}
+function goStudy(id,i){const l=L(id),p=P(id),items=studyItems(l);i=Math.max(0,Math.min(i,items.length-1));p.card=Math.max(p.card,i);save();MODE={l:id,k:'ts'};topBar();
+const it=items[i],last=i===items.length-1;
+const dots=`<div class="dots" aria-label="Card ${i+1} of ${items.length}">${items.map((x,k)=>`<span class="dot ${k===i?'now':k<=p.card?'on':''}"></span>`).join('')}</div>`;
+let body,read;
+if(it.kind==='card'){const c=it.c;read=c.t+'. '+c.say+' '+c.pts.join(' ')+' Remember: '+c.key;
+ body=`${i===0?speaker(avatar(l.look),l.who,esc(l.intro)):''}
+<h2 style="font-size:1.5rem;margin-top:1rem">${esc(c.t)}</h2>
+<p style="font-size:1.25rem;font-weight:800">${rich(c.say)}</p>
+<ul class="pts">${c.pts.map(x=>`<li>${rich(x)}</li>`).join('')}</ul>
+<div class="key">⭐ Remember: ${esc(c.key)}</div>`;
+ if(i===0)read=l.intro+' '+read;}
+else{read=it.a.t+'. '+it.a.say;body=`<div class="small pix" style="font-size:.6rem">HANDS-ON</div><h2 style="font-size:1.5rem">${esc(it.a.t)}</h2><p style="font-size:1.15rem">${esc(it.a.say)}</p><div id="act"></div>`}
+screen(`${tabs(l,'s')}<div class="card tabpanel">
+<div class="row spread">${dots}${sayBtn(read)}</div>${body}
+<div class="row spread" style="margin-top:1.2rem"><button class="btn white" ${i?'':'disabled'} onclick="goStudy('${id}',${i-1})">◀ Back</button>
+${last?`<button class="btn green" onclick="finishStudy('${id}')">I'm ready for Quests! ▶</button>`:`<button class="btn" onclick="goStudy('${id}',${i+1})">Next ▶</button>`}</div></div>`);
+if(it.kind==='act')runAct(l,it.a,it.i);autoRead(read)}
+function finishStudy(id){P(id).studied=true;save();goQuests(id)}
+
+// ---- hands-on activities ----
+function runAct(l,a,ai){const p=P(l.id),box=$('#act');
+ if(a.type==='order'){const order=shuffle(a.items.map((t,k)=>k));let n=0;
+  const draw=()=>{box.innerHTML=`<div class="tiles answer" aria-label="Your order">${a.items.slice(0,n).map((t,k)=>`<span class="tile placed">${k+1}. ${esc(t)}</span>`).join('')||'<span class="small">Tap the first step below.</span>'}</div>
+<div class="tiles" style="margin-top:.6rem">${order.filter(k=>k>=n).map(k=>`<button class="tile" data-k="${k}">${esc(a.items[k])}</button>`).join('')}</div><div id="actfb"></div>`;
+   box.querySelectorAll('button.tile').forEach(b=>b.onclick=()=>{const k=+b.dataset.k;if(k===n){n++;if(n===a.items.length){p.acts[ai]=true;save();draw();$('#actfb').innerHTML='<div class="fb good">🎉 Perfect order! Nice work.</div>';cheer()}else draw()}else{b.classList.remove('shake');void b.offsetWidth;b.classList.add('shake');$('#actfb').innerHTML='<div class="fb hint">Not that one yet. Which step comes next?</div>'}})};
+  draw();if(p.acts[ai])$('#actfb').innerHTML='<div class="fb good">✔ You already finished this one. Do it again for practice!</div>'}
+ if(a.type==='sort'){let left=shuffle(a.items.map((t,k)=>k)),placed=a.bins.map(()=>[]),sel=null;
+  const draw=()=>{box.innerHTML=`<div class="tiles">${left.map(k=>`<button class="tile ${sel===k?'sel':''}" data-k="${k}">${esc(a.items[k][0])}</button>`).join('')||'<span class="small">All sorted!</span>'}</div>
+<div class="bins">${a.bins.map((b,bi)=>`<button class="bin ${sel!==null?'ready':''}" data-b="${bi}"><h4>${esc(b)}</h4>${placed[bi].map(k=>`<span class="tile placed">${esc(a.items[k][0])}</span>`).join('')}</button>`).join('')}</div><div id="actfb"></div>`;
+   box.querySelectorAll('button.tile').forEach(b=>b.onclick=()=>{sel=+b.dataset.k;draw();$('#actfb').innerHTML='<div class="fb hint">Now tap the box where it belongs.</div>'});
+   box.querySelectorAll('.bin').forEach(b=>b.onclick=()=>{if(sel===null){$('#actfb').innerHTML='<div class="fb hint">First tap an item at the top.</div>';return}const bi=+b.dataset.b;
+    if(a.items[sel][1]===bi){placed[bi].push(sel);left=left.filter(k=>k!==sel);sel=null;draw();if(!left.length){p.acts[ai]=true;save();$('#actfb').innerHTML='<div class="fb good">🎉 All sorted! Great job.</div>';cheer()}}
+    else{b.classList.remove('shake');void b.offsetWidth;b.classList.add('shake');$('#actfb').innerHTML='<div class="fb hint">Not that box. Try another one!</div>'}})};
+  draw();if(p.acts[ai])$('#actfb').innerHTML='<div class="fb good">✔ You already finished this one. Do it again for practice!</div>'}}
+
+// ---- quests ----
+function goQuests(id){const l=L(id),p=P(id);if(!p.studied)return goStudy(id,0);MODE={l:id,k:'tq'};topBar();const s=stats(l);
+const nx=l.qs.findIndex((q,i)=>!(p.q[i]&&p.q[i].done));
+screen(`${tabs(l,'q')}<div class="card tabpanel">
+${speaker(avatar(l.look),l.who,nx<0?`You helped with every quest! Thank you! 🎉 Go check <b>My Report</b> or visit another building.`:`I have ${l.qs.length} quests for you. Each one has a question, then you build your answer. You've done <b>${s.done}</b> so far!`)}
+<div class="row" style="margin:1rem 0">${nx<0?`<button class="btn" onclick="goMap()">Back to the Town Map</button>`:`<button class="btn green" style="font-size:1.15rem" onclick="goQuest('${id}',${nx})">Start Quest ${nx+1} ▶</button>`}</div>
+<div class="qlist">${l.qs.map((q,i)=>{const r=p.q[i]||{};return `<button class="qbtn ${r.done?'done':''}" onclick="goQuest('${id}',${i})"><div class="n pix">QUEST ${i+1}</div><span class="coin ${r.done?'':'off'}"></span>${r.done?'Done':'Not done'}</button>`}).join('')}</div></div>`)}
+function rec(l,i){const p=P(l.id);return p.q[i]||(p.q[i]={tries:0,first:false,correct:false,hint:false,miss:[],pick:'',done:false,help:0,slips:0,sent:''})}
+function goQuest(id,i){const l=L(id),q=l.qs[i],r=rec(l,i);MODE={l:id,k:'tq'};topBar();
+if(r.done)return showDone(l,i);if(r.correct)return goBuild(l,i);
+let ch=q.c.map((t,k)=>({t,k}));if(S.set.choices===2)ch=[ch[0],ch[1]];ch=shuffle(ch);
+QQ=q.q;QCH=' '+ch.map((c,n)=>'Choice '+'ABC'[n]+': '+c.t+'.').join(' ');const read=QQ+(S.set.readCh?QCH:'');
+screen(`${tabs(l,'q')}<div class="card tabpanel">
+<div class="row spread"><span class="pix" style="font-size:.7rem">QUEST ${i+1} OF ${l.qs.length}</span><span class="row"><button class="say" id="rch" onclick="toggleReadCh()" aria-pressed="${S.set.readCh}">Read the choices: ${S.set.readCh?'ON':'OFF'}</button>${sayBtn(read)}</span></div>
+<div style="margin-top:.8rem">${speaker(avatar(l.look),l.who,esc(q.q))}</div>
+${S.set.orig?`<div class="orig">Original question: ${esc(q.o)}</div>`:''}
+<div id="ch" style="margin-top:.6rem">${ch.map((c,n)=>`<button class="choice" data-k="${c.k}"><b>${'ABC'[n]}</b>${esc(c.t)}</button>`).join('')}</div>
+<div id="qfb"></div>
+<div class="row spread" style="margin-top:.6rem"><button class="btn white" onclick="goQuests('${id}')">◀ Quest list</button>${S.set.hints?`<button class="btn blue" id="hb" onclick="showHint(${i})">💡 Hint</button>`:''}</div></div>`);
+document.querySelectorAll('.choice').forEach(b=>b.onclick=()=>pick(l,i,b));autoRead(read)}
+let QQ='',QCH='';
+function toggleReadCh(){S.set.readCh=!S.set.readCh;save();READ=QQ+(S.set.readCh?QCH:'');const b=$('#rch');b.textContent='Read the choices: '+(S.set.readCh?'ON':'OFF');b.setAttribute('aria-pressed',S.set.readCh);stopSpeak()}
+function showHint(i){const l=L(MODE.l),q=l.qs[i],r=rec(l,i);r.hint=true;save();$('#qfb').innerHTML=`<div class="fb hint">💡 ${esc(q.h)}</div>`;speak(q.h)}
+function pick(l,i,b){const q=l.qs[i],r=rec(l,i),k=+b.dataset.k;r.tries++;
+ if(k===0){r.correct=true;r.first=r.tries===1;r.pick=q.c[0];save();b.classList.add('right','pop');document.querySelectorAll('.choice').forEach(x=>x.disabled=true);
+  const hb=$('#hb');if(hb)hb.remove();
+  $('#qfb').innerHTML=`<div class="fb good">✔ ${r.first?'Yes! First try!':'You got it!'} ${esc(q.e)}</div><div class="row"><button class="btn green" onclick="goBuild(L('${l.id}'),${i})">Now build your answer ▶</button></div>`;cheer();if(S.set.read)speak((r.first?'Yes! First try! ':'You got it! ')+q.e)}
+ else{r.miss.push(q.c[k]);save();b.classList.add('wrong','shake');b.disabled=true;
+  const msg=S.set.hints?`Not quite. Here's a hint: ${q.h}`:'Not quite. Try another answer!';
+  $('#qfb').innerHTML=`<div class="fb bad">${esc(msg)}</div>`;if(S.set.read)speak(msg)}}
+function goBuild(l,i){const q=l.qs[i],r=rec(l,i);MODE={l:l.id,k:'tq'};let n=0;const order=shuffle(q.s.map((t,k)=>k));
+const read='Build your answer. Tap the pieces in order. The question was: '+q.q;
+screen(`${tabs(l,'q')}<div class="card tabpanel">
+<div class="row spread"><span class="pix" style="font-size:.7rem">QUEST ${i+1} · BUILD YOUR ANSWER</span>${sayBtn(read)}</div>
+<p style="font-size:1.1rem"><b>Question:</b> ${esc(q.q)}</p>
+<p>Tap the pieces <b>in order</b> to write your answer.</p>
+<div class="tiles answer" id="ans"></div><div class="tiles" id="pool" style="margin-top:.7rem"></div><div id="bfb"></div>
+<div class="row spread" style="margin-top:.8rem"><button class="btn white" onclick="goQuests('${l.id}')">◀ Quest list</button><button class="btn blue" id="help">🙋 Show me the next piece</button></div></div>`);
+const draw=()=>{$('#ans').innerHTML=q.s.slice(0,n).map(t=>`<span class="tile placed">${esc(t)}</span>`).join(' ')||'<span class="small">Your answer goes here.</span>';
+ $('#pool').innerHTML=order.filter(k=>k>=n).map(k=>`<button class="tile" data-k="${k}">${esc(q.s[k])}</button>`).join('');
+ document.querySelectorAll('#pool .tile').forEach(b=>b.onclick=()=>{const k=+b.dataset.k;if(k===n){n++;check()}else{r.slips++;save();b.classList.remove('shake');void b.offsetWidth;b.classList.add('shake');$('#bfb').innerHTML=`<div class="fb hint">${n===0?'Which piece starts the sentence? (Look for a capital letter.)':'Not next. Read your answer so far. What comes next?'}</div>`}})};
+const check=()=>{draw();$('#bfb').innerHTML='';if(n===q.s.length){r.done=true;r.sent=q.s.join(' ');save();cheer();setTimeout(()=>showDone(l,i,true),700)}};
+$('#help').onclick=()=>{r.help++;save();n++;check()};draw();autoRead(read)}
+function showDone(l,i,fresh){const q=l.qs[i],r=rec(l,i),more=l.qs.findIndex((x,k)=>!(P(l.id).q[k]&&P(l.id).q[k].done));
+screen(`${tabs(l,'q')}<div class="card tabpanel" style="text-align:center">
+<div class="pix" style="font-size:${fresh?'1.1rem':'.8rem'};color:var(--good)">${fresh?'QUEST COMPLETE!':'QUEST '+(i+1)+' DONE'}</div>
+<div style="font-size:3rem">${fresh?'🪙':'✅'}</div>
+<p style="font-size:1.1rem"><b>Question:</b> ${esc(q.q)}</p>
+<p style="font-size:1.25rem;background:#f3fff5;border:3px solid var(--good);border-radius:12px;padding:.7rem"><b>Your answer:</b> ${esc(r.sent)}</p>
+<div class="row" style="justify-content:center">${more>=0?`<button class="btn green" onclick="goQuest('${l.id}',${more})">Next quest ▶</button>`:`<button class="btn green" onclick="goQuests('${l.id}')">All done! ▶</button>`}<button class="btn white" onclick="goQuests('${l.id}')">Quest list</button>${sayBtn('Your answer: '+r.sent)}</div></div>`)}
+function cheer(){if(matchMedia('(prefers-reduced-motion: reduce)').matches)return;for(let k=0;k<10;k++){const d=document.createElement('div');d.className='confetti';d.textContent=['★','✦','●'][k%3];d.style.color=['#ffcc33','#3b6fd8','#2fb36d','#e5484d'][k%4];d.style.left=(20+Math.random()*60)+'vw';d.style.top='40vh';document.body.appendChild(d);d.animate([{transform:'translate(0,0)',opacity:1},{transform:`translate(${(Math.random()-.5)*300}px,${-150-Math.random()*200}px)`,opacity:0}],{duration:900,easing:'ease-out'}).onfinish=()=>d.remove()}}
+
+// ---- report ----
+function goReport(){MODE=null;topBar();let tA=0,tF=0;const rows=LESSONS.map(l=>{const s=stats(l),p=P(l.id),[m,ml]=mastery(s.pct);tA+=s.ans;tF+=s.first;
+return `<tr><td><b>${esc(l.code)}</b><br>${esc(l.title)}</td><td>${p.studied?'Done':'Not yet'}<br><span class="small">${fmt(p.ts)}</span></td><td>${s.acts}/${l.acts.length}</td><td>${s.done}/${l.qs.length}<br><span class="small">${fmt(p.tq)}</span></td><td>${s.ans?`${s.first}/${s.ans} (${s.pct}%)`:'-'}</td><td>${s.hints}</td><td>${s.done?`${s.own}/${s.done}`:'-'}</td><td class="m${m}"><b>${m||'-'}</b> ${ml}</td></tr>`}).join('');
+const tp=tA?Math.round(100*tF/tA):null,[tm,tml]=mastery(tp);
+const review=[];LESSONS.forEach(l=>l.qs.forEach((q,i)=>{const r=P(l.id).q[i];if(r&&r.tries&&!r.first)review.push(`<li><b>${esc(q.k)}</b> <span class="small">(${esc(l.code)} Q${i+1})</span></li>`)}));
+const hand=LESSONS.map(l=>{const p=P(l.id);return `<h3>${esc(l.code)} ${esc(l.title)}${l.id==='l2'?' <span class="small">(questions written from the U4L2 slides)</span>':''}</h3><ol>${l.qs.map((q,i)=>{const r=p.q[i];return `<li><b>${esc(q.o)}</b><span class="a">${r&&r.done?esc(r.sent):'<i class="small">Not answered yet</i>'}</span></li>`}).join('')}</ol>`}).join('');
+screen(`<div class="card"><div class="row spread"><h1 class="pix" style="font-size:1.05rem">NETWORK TOWN REPORT</h1><div class="row noprint"><button class="btn" onclick="window.print()">🖨 Print / Save as PDF</button><button class="btn white" onclick="goMap()">Town Map</button></div></div>
+<p><b>Student:</b> ${esc(S.name)} &nbsp; <b>Period:</b> ${esc(S.period||'-')} &nbsp; <b>Date:</b> ${new Date().toLocaleDateString()}</p>
+<p style="font-size:1.15rem"><b>Overall first-try score:</b> ${tA?`${tF}/${tA} (${tp}%)`:'No quests yet'} &nbsp; <b>Level:</b> <span class="m${tm}" style="padding:.1rem .5rem;border-radius:6px">${tm?tm+' · ':''}${tml}</span></p>
+<table><tr><th>Lesson</th><th>Study</th><th>Hands-on</th><th>Quests done</th><th>Correct on first try</th><th>Hints used</th><th>Sentences built with no help</th><th>Level (1-4)</th></tr>${rows}</table>
+<p class="small">Level: 4 Mastered (90%+), 3 Proficient (75%+), 2 Developing (60%+), 1 Beginning. Based on first-try answers. Times show time spent on each part. Settings: ${S.set.choices} answer choices, hints ${S.set.hints?'on':'off'}, read aloud ${S.set.read?'auto':'on request'}${S.set.big?', big text':''}.</p>
+<h2 class="pix" style="font-size:.8rem;margin-top:1.2rem">TERMS TO REVIEW</h2>${review.length?`<ul>${review.join('')}</ul>`:'<p>None yet. Great job!</p>'}</div>
+<div class="card handout"><h2 class="pix" style="font-size:.85rem">COMPLETED HANDOUTS</h2><p class="small">Original handout questions with the answers ${esc(S.name)} built in Network Town.</p>${hand}</div>`)}
+
+// ---- teacher ----
+function modal(h){$('#modal').innerHTML=`<div class="modal" onclick="if(event.target===this)closeModal()"><div class="card" role="dialog" aria-modal="true">${h}</div></div>`;const f=$('#modal input,#modal button');if(f)f.focus()}
+function closeModal(){$('#modal').innerHTML=''}
+function teacher(){modal(`<h2 class="pix">TEACHER</h2><label for="pin">Enter PIN</label><input id="pin" type="password" inputmode="numeric" onkeydown="if(event.key==='Enter')pinGo()"><p id="pe" style="color:var(--bad);font-weight:900"></p><div class="row"><button class="btn" onclick="pinGo()">Open</button><button class="btn white" onclick="closeModal()">Cancel</button></div>`)}
+function pinGo(){if($('#pin').value===S.set.pin)settings();else $('#pe').textContent='Wrong PIN.'}
+function settings(){const s=S.set,t=(k,l,d)=>`<div class="toggle"><div><b>${l}</b><div class="small">${d}</div></div><input type="checkbox" ${s[k]?'checked':''} onchange="S.set.${k}=this.checked;save();applySet()"></div>`;
+modal(`<h2 class="pix">SETTINGS</h2>
+${t('read','Read aloud automatically','Reads each card and question as it opens.')}
+${t('hints','Hints','Shows the hint button and a hint after a wrong answer.')}
+${t('big','Big text','Makes everything larger.')}
+${t('orig','Show original question','Shows the handout wording under the simplified question.')}
+<div class="toggle"><div><b>Answer choices</b><div class="small">How many choices each quest shows.</div></div><select style="width:auto" onchange="S.set.choices=+this.value;save()"><option value="3" ${s.choices===3?'selected':''}>3</option><option value="2" ${s.choices===2?'selected':''}>2</option></select></div>
+<label for="np">Change PIN</label><div class="row"><input id="np" inputmode="numeric" style="max-width:180px" placeholder="New PIN"><button class="btn white" onclick="if($('#np').value.trim()){S.set.pin=$('#np').value.trim();save();$('#pm').textContent='PIN saved.'}">Save PIN</button></div><p id="pm" class="small"></p>
+<div class="row" style="margin-top:1rem"><button class="btn blue" onclick="closeModal();goReport()">View report</button><button class="btn red" onclick="resetAsk()">Reset student</button><button class="btn" onclick="closeModal();S.name?goMap():goStart()">Done</button></div><div id="rs"></div>`)}
+function resetAsk(){$('#rs').innerHTML=`<div class="fb bad">This erases the name and ALL progress on this computer. <div class="row" style="margin-top:.5rem"><button class="btn red" onclick="doReset()">Yes, erase</button><button class="btn white" onclick="$('#rs').innerHTML=''">No</button></div></div>`}
+function doReset(){const set=S.set;S=fresh();S.set=set;save();closeModal();goStart()}
+function applySet(){document.documentElement.classList.toggle('big',!!S.set.big)}
+
+applySet();S.name?goMap():goStart();
+</script>
+</body>
+</html>
